@@ -1,0 +1,136 @@
+<template>
+        <style>
+            #paginas{
+             border:  1 solid black;   
+             position: relative;
+             
+             
+            }
+            #tabmenu{
+                width: 500px;
+                height: 30px;
+                text-align: center;
+                background-color: #D7D7DA;
+                position: absolute;
+                
+            }
+            
+            .pestana{
+                display: list-item;
+                padding: 10px;
+                padding-top: 6px;
+                text-transform: uppercase;
+                list-style: none;
+                float: left;
+                border: none;
+            }
+
+            .pestana:focus{
+                background-color:#C5C6C8;
+                outline-width: 0;
+                border-top: 2px solid rgb(21, 21, 25);
+            }
+
+            .pestana:hover{
+                background-color: #C5C6C8;
+                cursor: pointer;
+            }
+
+            
+            #content{
+                width: 500px;
+                height: 500px;
+                background-color: #C5C6C8; 
+                position: absolute;
+                top: 30px;
+                overflow: auto;
+            }
+            .visible{
+                opacity: 1;
+                overflow: hidden;
+                position: absolute;
+                padding-top: 5px;
+            }
+            
+            .invisible{
+                padding-top: 5px;
+                opacity: 0;
+                overflow: hidden;
+                position: absolute;
+            }
+    
+        </style>
+        <div id="paginas">
+            <div id="tabmenu">
+            </div>
+            <div id="content"></div>
+        </div>
+    
+        
+    </template>
+    
+    
+    <script>
+        var prototipo = Object.create(HTMLElement.prototype);
+        var templatecontent = document.currentScript.ownerDocument.querySelector("template").content;
+        prototipo.createdCallback = function(){
+            var clon = document.importNode(templatecontent, true);
+            var innertag = this.innerHTML;
+            var contenido = clon.querySelector("#content");
+            contenido.innerHTML = innertag;
+            var nodos_a_eliminar = new Array();
+            
+                function buscar(){
+                    var elementos = clon.getElementById("paginas").childNodes;
+                    for (var k=0;k<elementos.length;k++){
+                        for (var i=0;i<elementos[k].childNodes.length;i++){
+                        var hijo = elementos[k].childNodes[i];
+                            if ((hijo.nodeType == 3 && !/\S/.test(hijo.nodeValue))||(hijo.nodeType==8)){
+                            nodos_a_eliminar[nodos_a_eliminar.length] = hijo;
+                            }    
+                        }
+                    }    
+                     destruir();
+                }
+                 function destruir(){
+                 for(var d=0;d<nodos_a_eliminar.length;d++){
+                  nodos_a_eliminar[d].parentNode.removeChild(nodos_a_eliminar[d]);
+                     }
+                 }
+                 buscar();
+
+
+                  var hijos = contenido.childNodes;
+                  
+                 
+            for (let i = 0; i < hijos.length; i++) {
+                hijos[i].classList.add("invisible");                
+                clon.getElementById("tabmenu").innerHTML += "<div tabindex='1' id='p"+(i+1)+"'class='pestana'>Opción "+ (i+1)+ "</div>";
+            }
+
+         
+
+            function refrescar(){
+                for (let i = 0; i < hijos.length; i++) {
+               hijos[i].classList.add("invisible");
+               hijos[i].classList.remove("visible");
+            }
+            }
+
+              for (let i = 0; i < hijos.length; i++) {
+                clon.getElementById("p"+(i+1)).addEventListener("click", function () {
+                    refrescar();
+                    hijos[i].classList.remove("invisible");
+                    hijos[i].classList.add("visible");
+            });  
+            }
+
+            this.createShadowRoot().appendChild(clon);
+        };
+    
+        document.registerElement('new-window',{ 
+            prototype: prototipo
+        });
+    
+    
+    </script>
